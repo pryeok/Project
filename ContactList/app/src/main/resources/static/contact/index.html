@@ -1,45 +1,51 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>연락처</title>
-  </head>
-  <body>
-    <h1>연락처</h1>
-    <a href="form.html">새 연락처</a>
-    <table id="x-contact-tbl" border="1">
-      <thead>
-        <tr>
-          <th>이름</th>
-          <th>이메일</th>
-          <th>전화</th>
-          <th>회사</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
+<head>
+  <meta charset="utf-8">
+  <title>연락처</title>
+</head>
+<body>
+  <h1>연락처</h1>
+  <a href="form.html">새 연락처</a>
+  <table id="x-contact-table" border="1">
+    <thead>
+      <tr>
+        <th>이름</th>
+        <th>이메일</th>
+        <th>전화</th>
+        <th>회사</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
 
-    <script type="text/javascript">
-      var tbody = document.querySelector("#x-contact-tbl tbody");
+  <script type="text/javascript">
 
-fetch("/contact/list").then(function(response){
-  return response.json();  // 자바스크립트 객체로 만들어주기
+    var tbody = document.querySelector("#x-contact-table tbody")
 
-}).then(function(arr){
-  for (var str of arr) {
-    console.log(str);
-    var contact = str.split(",");    // .split = 받은 문자열을 콤마로 쪼개서 배열을 다시 만드는 것!!
-    var tr = document.createElement("tr");
-    tr.innerHTML = `<td><a href="view.html?email=${contact[1]}">${contact[0]}</td>
-      <td>${contact[1]}</td>
-      <td>${contact[2]}</td>
-      <td>${contact[3]}</td>`;
+    fetch("/contact/list")
+    .then(function(response){
+      /*
+      if(!response.ok){
+        alert("서버 실행 오류!");
+      }
+      */
+      return response.json();  // JSON 파일을 자바스크립트 객체로 파싱
+    })
+    .then(function(contacts){
+      console.log(contacts);
+      for (var contact of contacts) {
+        var values = contact.split(",");
+        var tr = document.createElement("tr");
+        tr.innerHTML = `<td><a href="view.html?email=${values[1]}">${values[0]}</td>
+        <td>${values[1]}</td>
+        <td>${values[2]}</td>
+        <td>${values[3]}</td>`;
 
-    tbody.appendChild(tr);
-  }
-});
-</script>
-
-  </body>
+        tbody.appendChild(tr);
+      }
+    });
+  </script>
+</body>
 </html>

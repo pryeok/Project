@@ -1,40 +1,96 @@
 package com.eomcs.mylist;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController  // 클라이언트 요청을 처리하는 역할
+@RestController 
+// 이 클래스가 클라이언트 요청 처리 담당자임을 표시한다.
+// 이 표시(애노테이션)가 붙어 있어야만 스프링부트가 이 클래스를 인식한다.
 public class ContactController {
 
-  // 인스턴스 변수
-  // => 모든 인스턴스 메서드가 공유한다
   String[] contacts = new String[5];
   int size = 0;
 
-  @GetMapping("/contact/list")
+  @RequestMapping("/contact/list")
   public Object list() {
-    String[] records = new String[size];
-    for (int i=0; i<size; i++) {
-      records[i] = contacts[i];
+    String[] arr = new String[size]; // 배열에 저장된 값만 복사할 새 배열을 만든다.
+    for (int i = 0; i < size; i++) { 
+      arr[i] = contacts[i]; // 전체 배열에서 값이 들어 있는 항목만 복사한다.
     }
-    return records;
+    return arr; // 복사한 항목들을 담고 있는 새 배열을 리턴한다.
   }
 
-  @GetMapping("/contact/add")
+  @RequestMapping("/contact/add")
   public Object add(String name, String email, String tel, String company) {
-
-    contacts[size++] = name + "," + email + "," + tel + "," + company;
+    contacts[size++] = createCSV(name, email, tel, company);
     return size;
   }
 
-  @GetMapping("/contact/get")
+  @RequestMapping("/contact/get")
   public Object get(String email) {
-    for (String contact : contacts) {   // = contact of contacts
-      if (email.equals(contact.split(",")[1])) {
-        return contact;
-      }
-    }
-    return "";
+    int index = indexOf(email);     // 메서드 이름 자체가 indexOf !!
+    if (index == -1) {
+      return "";
+    } 
+    return contacts[index];
   }
 
+
+  @RequestMapping("/contact/update")
+  public Object update(String name, String email, String tel, String company) {
+    int index = indexOf(email);     // 메서드 이름 자체가 indexOf !!
+    if (index == -1) {
+      return 0;
+    }  
+    contacts[index] = createCSV(name, email, tel, company);
+    return 1;
+  }
+
+  @RequestMapping("/contact/delete")
+  public Object delete(String email) {
+    int index = indexOf(email);
+    if (index == -1) {
+      return 0;
+    }
+    remove(index);
+    return 1;
+  }
+
+
+
+  // ------------------------------------------------------
+
+
+
+  // 기능 : 입력 받은 파라미터 값을 가지고 CSV 형식으로 문자열을 만들어 준다
+  // CSCV : comma-separated values
+  String createCSV(String name, String email, String tel, String company) {
+    return name + "," + email + "," + tel + "," + company;
+  }
+
+
+  // 기능 : 이메일로 연락처 정보를 찾는다. 찾은 연락처의 배열 인덱스를 리턴한다
+  int indexOf(String email) {
+    for (int i = 0; i < size; i++) {
+      if (contacts[i].split(",")[1].equals(email)) { 
+        return i;
+      }
+    }
+    return -1;     //인덱스값 못찾으면 -1 !!
+  }
+
+
+  // 기능 : 배열에서 지정한 항목을 삭제한다
+  String remove(int index) {
+    String old = contacts[index];
+    for (int i = index + 1; i < size; i++) {
+      contacts[i - 1] = contacts[i];
+    }
+    size--;
+    return old;
+  }
 }
+
+
+
+
