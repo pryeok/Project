@@ -2,40 +2,26 @@ package com.eomcs.mylist;
 
 public class ArrayList {
 
-  static Contact[] contacts = new Contact[5];
+  static Object[] list = new Object[5];
   static int size = 0;
 
   // 기능:
-  // - 이메일로 연락처 정보를 찾는다. 찾은 연락처의 배열 인덱스를 리턴한다.
+  // - 배열에 항목을 추가한다.
+  // - 배열이 꽉찼으면 배열의 크기를 늘린다.
   //
-  static int indexOf(String email) {
-    for (int i = 0; i < size; i++) {
-      Contact contact = contacts[i];
-      if (contact.email.equals(email)) { 
-        return i;
-      }
+  static void add(Object contact) {
+    if (size == list.length) { 
+      list = grow(); 
     }
-    return -1;
-  }
-
-  // 기능:
-  // - 배열에서 지정한 항목을 삭제한다.
-  //
-  static Contact remove(int index) {
-    Contact old = contacts[index];
-    for (int i = index + 1; i < size; i++) {
-      contacts[i - 1] = contacts[i];
-    }
-    size--;
-    return old;
+    list[size++] = contact;
   }
 
   // 기능:
   // - 배열의 크기를 늘린다. 기존 배열의 값을 복사해온다.
   //
-  static Contact[] grow() {
-    Contact[] arr = new Contact[newLength()];
-    copy(contacts, arr);
+  static Object[] grow() {
+    Object[] arr = new Object[newLength()];
+    copy(list, arr);
     return arr;
   }
 
@@ -43,13 +29,13 @@ public class ArrayList {
   // - 주어진 배열에 대해 50% 증가시킨 새 배열의 길이를 알려준다.
   //
   static int newLength() {
-    return contacts.length + (contacts.length >> 1);
+    return list.length + (list.length >> 1);
   }
 
   // 기능: 
   // - 배열을 복사한다.
   // 
-  static void copy(Contact[] source, Contact[] target) {
+  static void copy(Object[] source, Object[] target) {
     int length = source.length;
     if (target.length < source.length) {
       length = target.length;
@@ -62,33 +48,41 @@ public class ArrayList {
   // 기능:
   // - 배열에 저장된 목록만 꺼내 새 배열에 담아 리턴한다.
   //
-  static Contact[] toArray() {
-    Contact[] arr = new Contact[size]; 
+  static Object[] toArray() {
+    Object[] arr = new Object[size]; 
     for (int i = 0; i < size; i++) { 
-      arr[i] = contacts[i]; 
+      arr[i] = list[i]; 
     }
     return arr; 
   }
 
   // 기능:
-  // - 배열에 항목을 추가한다.
-  // - 배열이 꽉찼으면 배열의 크기를 늘린다.
+  // - 배열에서 지정한 항목을 삭제한다.
   //
-  static void add(Contact contact) {
-    if (size == contacts.length) { 
-      contacts = grow(); 
+  static Object remove(int index) {
+    Object old = list[index];
+    for (int i = index + 1; i < size; i++) {
+      list[i - 1] = list[i];
     }
-    contacts[size++] = contact;
+    size--;
+    return old;
   }
 
-  static Contact set(int index, Contact contact ) {
+  static Object set(int index, Object obj ) {
     if (index < 0 || index >= size) {
       return null;
     }
-    Contact old = contacts[index];
-    contacts[index] = contact;
+    Object old = list[index];
+    list[index] = obj;
     return old;
   }
 }
+
+
+
+
+
+
+
 
 
