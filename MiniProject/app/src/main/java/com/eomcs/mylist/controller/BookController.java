@@ -58,6 +58,7 @@ public class BookController {
       return 0;
     }
     return bookList.remove(index) == null ? 0 : 1;
+
   }
 }
 
