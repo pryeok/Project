@@ -1,23 +1,15 @@
 package com.eomcs.mylist.domain;
 
+import java.sql.Date;
+
 public class Book {
   String title;
   String author;
   String press;
   int page;
   int price;
-  java.sql.Date readDate;
+  Date readDate;
   String feed;
-
-  public Book() {
-    System.out.println("Board() 호출됨!");
-  }
-
-  @Override
-  public String toString() {
-    return "Book [title=" + title + ", author=" + author + ", press=" + press + ", page=" + page
-        + ", price=" + price + ", readDate=" + readDate + ", feed=" + feed + "]";
-  }
 
   public String getTitle() {
     return title;
@@ -49,10 +41,10 @@ public class Book {
   public void setPrice(int price) {
     this.price = price;
   }
-  public java.sql.Date getReadDate() {
+  public Date getReadDate() {
     return readDate;
   }
-  public void setReadDate(java.sql.Date readDate) {
+  public void setReadDate(Date readDate) {
     this.readDate = readDate;
   }
   public String getFeed() {

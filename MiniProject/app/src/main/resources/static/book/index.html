@@ -2,20 +2,18 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <title>도서록</title>
+  <title>독서록</title>
 </head>
 <body>
-<h1>도서목록</h1>
-<a href="form.html">새 도서</a>
+<h1>독서록</h1>
+<a href="form.html">새 독서록</a>
 <table id="x-book-table" border="1">
 <thead>
   <tr>
-    <th>제목</th>
+    <th>책</th>
     <th>저자</th>
     <th>출판사</th>
-    <th>페이지수</th>
-    <th>가격</th>
-    <th>읽은 날짜</th>
+    <th>페이지</th>
   </tr>
 </thead>
 <tbody>
@@ -23,7 +21,6 @@
 </table>
 
 <script type="text/javascript">
-
   var tbody = document.querySelector("#x-book-table tbody")
 
   fetch("/book/list")
@@ -38,12 +35,19 @@
         tr.innerHTML = `<td><a href="view.html?index=${i}">${book.title}</a></td>
         <td>${book.author}</td>
         <td>${book.press}</td>
-        <td>${book.page}</td>
-        <td>${book.price}</td>
-        <td>${book.readDate}</td>`;
+        <td>${book.page}</td>`;
         tbody.appendChild(tr);
       }
     });
-  </script>
+</script>
+
+
+
+
+
+
+
+
+
 </body>
 </html>
