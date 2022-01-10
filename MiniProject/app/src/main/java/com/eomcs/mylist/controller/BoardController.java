@@ -27,7 +27,7 @@ public class BoardController {
 
   @RequestMapping("/board/list")
   public Object list() {
-    return boardList.toArray();
+    return boardList.toArray(); 
   }
 
   @RequestMapping("/board/add")
@@ -46,6 +46,7 @@ public class BoardController {
     }
     Board board = (Board) boardList.get(index);
     board.setViewCount(board.getViewCount() + 1);
+
     return board;
   }
 
@@ -67,7 +68,6 @@ public class BoardController {
     if (index < 0 || index >= boardList.size()) {
       return 0;
     }
-
     return boardList.remove(index) == null ? 0 : 1;
   }
 
@@ -85,6 +85,8 @@ public class BoardController {
     return arr.length;
   }
 }
+
+
 
 
 

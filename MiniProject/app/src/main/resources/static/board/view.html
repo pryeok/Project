@@ -6,13 +6,13 @@
 </head>
 <body>
 
-<h1>게시 상세</h1>
+<h1>게시글 상세</h1>
 
 <form>
-  제목*: <input id="x-title" type="text"><br>
-  내용*: <textarea id="x-content" cols="60" rows="10"></textarea><br>
-  조회수: <span id="x-viewCount"></span><br>
-  등록일: <span id="x-createdDate"></span><br>
+제목*: <input id="x-title" type="text"><br>
+내용*: <textarea id="x-content" cols="60" rows="10"></textarea><br>
+조회수: <span id="x-viewCount"></span><br>
+등록일: <span id="x-createdDate"></span><br>
 별표(*) 항목은 필수 입력입니다.<br>
 <button id="x-update-btn" type="button">변경</button>
 <button id="x-delete-btn" type="button">삭제</button>
@@ -38,7 +38,7 @@
   var index = params.get("index");
 
   if (index == null) {
-    alert("이메일 값이 없습니다.");
+    alert("게시물 번호가 없습니다.");
     throw "파라미터 오류!";
   }
   console.log(index);
@@ -54,7 +54,6 @@
       return response.json();
     })
     .then(function(board) {
-
 
       xTitle.value = board.title;
       xContent.value = board.content;
