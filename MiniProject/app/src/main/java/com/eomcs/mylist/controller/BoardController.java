@@ -3,16 +3,27 @@ package com.eomcs.mylist.controller;
 import java.sql.Date;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.eomcs.io.FileWriter2;
 import com.eomcs.mylist.domain.Board;
 import com.eomcs.util.ArrayList;
 
 @RestController 
 public class BoardController {
 
-  // Contact 객체 목록을 저장할 메모리 준비
-  // => Object[] list = new Object[5];
-  // => int size = 0;
   ArrayList boardList = new ArrayList();
+
+  public BoardController() throws Exception {
+    System.out.println("BoardController() 호출됨!");
+
+    com.eomcs.io.FileReader2 in = new com.eomcs.io.FileReader2("boards.csv");
+
+    String line;
+    while ((line = in.readLine()).length() != 0) { // 빈 줄을 리턴 받았으면 읽기를 종료한다.
+      boardList.add(Board.valueOf(line)); // 파일에서 읽은 한 줄의 CSV 데이터로 객체를 만든 후 목록에 등록한다.
+    }
+
+    in.close();
+  }
 
   @RequestMapping("/board/list")
   public Object list() {
@@ -57,10 +68,22 @@ public class BoardController {
       return 0;
     }
 
-    boardList.remove(index);
-    return 1;
+    return boardList.remove(index) == null ? 0 : 1;
   }
 
+  @RequestMapping("/board/save")
+  public Object save() throws Exception {
+    FileWriter2 out = new FileWriter2("boards.csv"); // 따로 경로를 지정하지 않으면 파일은 프로젝트 폴더에 생성된다.
+
+    Object[] arr = boardList.toArray();
+    for (Object obj : arr) {
+      Board board = (Board) obj;
+      out.println(board.toCsvString());
+    }
+
+    out.close();
+    return arr.length;
+  }
 }
 
 
