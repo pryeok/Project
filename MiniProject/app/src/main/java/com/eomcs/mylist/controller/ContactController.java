@@ -1,8 +1,11 @@
 package com.eomcs.mylist.controller;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.eomcs.io.FileWriter2;
 import com.eomcs.mylist.domain.Contact;
 import com.eomcs.util.ArrayList;
 
@@ -26,7 +29,9 @@ public class ContactController {
     contactList = new ArrayList();
     System.out.println("ContactController() 호출됨!");
 
-    com.eomcs.io.FileReader2 in = new com.eomcs.io.FileReader2("contacts.csv");
+    // 1) 주 작업 객체(concrete component) 준비    // 주 작업 객체
+    // 2) 한 줄 단위로 데이터를 읽는 작업을 수행하는 데코레이터 준비  // 데코레이터 객체
+    BufferedReader in = new BufferedReader(new FileReader("contacts.csv"));
 
     String line;
     while ((line = in.readLine()).length() != 0) { // 빈 줄을 리턴 받았으면 읽기를 종료한다.
@@ -81,7 +86,10 @@ public class ContactController {
 
   @RequestMapping("/contact/save")
   public Object save() throws Exception {
-    FileWriter2 out = new FileWriter2("contacts.csv"); // 따로 경로를 지정하지 않으면 파일은 프로젝트 폴더에 생성된다.
+
+    // 1) 주 작업 객체 준비
+    // 2) 한 줄 단위로 출력하는 데코레이터 객체 준비
+    PrintWriter out = new PrintWriter(new FileWriter("contacts.csv"));
 
     Object[] arr = contactList.toArray();
     for (Object obj : arr) {
