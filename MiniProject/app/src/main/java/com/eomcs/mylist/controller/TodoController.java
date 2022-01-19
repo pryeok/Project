@@ -1,24 +1,16 @@
 package com.eomcs.mylist.controller;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.eomcs.mylist.domain.Todo;
 import com.eomcs.util.ArrayList;
 
-//1) 생성자에서 FileReader 객체를 준비한다.
-//2) 파일에서 문자를 읽어 출력한다.
-//3) 파일을 더이상 읽을 수 없으면 반복문을 종료한다.
-//4) 파일에서 읽은 문자를 버퍼에 담았다가 줄바꿈 코드를 만나면 출력한다. 
-//5) 한 줄 출력한 다음에 버퍼를 비운다.
-//6) 한 줄의 CSV 데이터를 읽어 분석한 후 Contact 객체에 담아서 목록에 추가한다.
-//7) CSV 데이터로 Contact 객체를 초기화시키는 일을 Contact 객체의 생성자로 옮긴다.
-//8) Contact 클래스의 valueOf() 스태틱 메서드를 사용하여 CSV 데이터로 객체를 생성한다.
-//9) while 문 정리!
-//
 @RestController 
 public class TodoController {
 
@@ -28,13 +20,18 @@ public class TodoController {
     todoList = new ArrayList();
     System.out.println("TodoController() 호출됨!");
 
-    // 1) 주 작업 객체(concrete component) 준비    // 주 작업 객체
-    // 2) 한 줄 단위로 데이터를 읽는 작업을 수행하는 데코레이터 준비  // 데코레이터 객체
-    BufferedReader in = new BufferedReader(new FileReader("todos.csv"));
+    DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream("todos.data")));
 
-    String line;
-    while ((line = in.readLine()).length() != 0) { // 빈 줄을 리턴 받았으면 읽기를 종료한다.
-      todoList.add(Todo.valueOf(line)); // 파일에서 읽은 한 줄의 CSV 데이터로 객체를 만든 후 목록에 등록한다.
+    while (true) { 
+      try {
+        Todo todo = new Todo();
+        todo.setTitle(in.readUTF());
+        todo.setDone(in.readBoolean());
+
+        todoList.add(todo); // 파일에서 읽은 한 줄의 CSV 데이터로 객체를 만든 후 목록에 등록한다.
+      } catch (Exception e) {
+        break;
+      }
     }
 
     in.close();
@@ -86,14 +83,15 @@ public class TodoController {
   @RequestMapping("/todo/save")
   public Object save() throws Exception {
 
-    // 1) 주 작업 객체 준비
-    // 2) 한 줄 단위로 출력하는 데코레이터 객체 준비
-    PrintWriter out = new PrintWriter(new FileWriter("todos.csv"));
+    // 데이터를 바이너리 형식으로 저장하기 위해 !!!
+    DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("todos.data")));
 
     Object[] arr = todoList.toArray();
     for (Object obj : arr) {
       Todo todo = (Todo) obj;
-      out.println(todo.toCsvString());
+      out.writeUTF(todo.getTitle());
+      out.writeBoolean(todo.isDone());
+
     }
 
     out.close();

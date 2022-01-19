@@ -1,9 +1,11 @@
 package com.eomcs.mylist.controller;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.sql.Date;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,18 +20,24 @@ public class BoardController {
   public BoardController() throws Exception {
     System.out.println("BoardController() 호출됨!");
 
-    // 1) 주 작업 객체(concrete component) 준비    // 주 작업 객체
-    FileReader in = new FileReader("boards.csv");
+    ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream("boards.data")));
 
-    // 2) 한 줄 단위로 데이터를 읽는 작업을 수행하는 데코레이터 준비  // 데코레이터 객체
-    BufferedReader in2 = new BufferedReader(in);
+    while (true) {
+      try {
+        Board board = new Board();
+        board.setTitle(in.readUTF());
+        board.setContent(in.readUTF());
+        board.setViewCount(in.readInt());
+        board.setCreatedDate(Date.valueOf(in.readUTF()));
 
-    String line;
-    while ((line = in2.readLine()) != null) { // 빈 줄을 리턴 받았으면 읽기를 종료한다.
-      boardList.add(Board.valueOf(line)); // 파일에서 읽은 한 줄의 CSV 데이터로 객체를 만든 후 목록에 등록한다.
+        boardList.add(board);
+
+      } catch (Exception e) {
+        break;
+      }
     }
 
-    in2.close();
+    in.close();
   }
 
   @RequestMapping("/board/list")
@@ -80,19 +88,19 @@ public class BoardController {
 
   @RequestMapping("/board/save")
   public Object save() throws Exception {
-    // 1) 주 작업 객체 준비
-    FileWriter out = new FileWriter("boards.csv"); // 따로 경로를 지정하지 않으면 파일은 프로젝트 폴더에 생성된다.
 
-    // 2) 한 줄 단위로 출력하는 데코레이터 객체 준비
-    PrintWriter out2 = new PrintWriter(out);
+    ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("boards.data")));
 
     Object[] arr = boardList.toArray();
     for (Object obj : arr) {
       Board board = (Board) obj;
-      out2.println(board.toCsvString());
+      out.writeUTF(board.getTitle());
+      out.writeUTF(board.getContent());
+      out.writeInt(board.getViewCount());
+      out.writeUTF(board.getCreatedDate().toString());
     }
 
-    out2.close();
+    out.close();
     return arr.length;
   }
 }
