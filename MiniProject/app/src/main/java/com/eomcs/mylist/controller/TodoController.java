@@ -1,15 +1,15 @@
 package com.eomcs.mylist.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.eomcs.mylist.domain.Todo;
 import com.eomcs.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController 
 public class TodoController {
@@ -20,21 +20,35 @@ public class TodoController {
     todoList = new ArrayList();
     System.out.println("TodoController() 호출됨!");
 
-    DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream("todos.data")));
+    try {
+      BufferedReader in = new BufferedReader(new FileReader("todos.json"));
 
-    while (true) { 
-      try {
-        Todo todo = new Todo();
-        todo.setTitle(in.readUTF());
-        todo.setDone(in.readBoolean());
+      // JSON 문자열을 다룰 객체 준비
+      ObjectMapper mapper = new ObjectMapper();
 
-        todoList.add(todo); // 파일에서 읽은 한 줄의 CSV 데이터로 객체를 만든 후 목록에 등록한다.
-      } catch (Exception e) {
-        break;
-      }
+      // 1) JSON 파일에서 문자열을 읽어온다
+      // => 읽어 온 문자열은 배열 형식이다
+      String jsonStr = in.readLine();
+
+      // 2) JSON 문자열을 가지고 자바 객체를 생성한다
+      // => 배열 형식의 JSON 문자열에서 Board의 배열 객체를 생성한다
+      Todo[] todos = mapper.readValue(jsonStr, Todo[].class);
+
+      // 3) 배열 객체를 ArrayList 에 저장한다
+      //      for (Todo todo : todos) {
+      //        todoList.add(todo);
+      //      }
+      // => 다음과 같이 addALl()을 호출하여 배열을 목록에 추가할 수 있다
+      //      todoList.addAll(todos);
+
+      // => 다음과 같이 생성자를 통해 배열을 목록에 추가할 수 있다
+      todoList = new ArrayList(todos);
+
+      in.close();
+
+    } catch (Exception e) {
+      System.out.println("해야할 일 데이터를 로딩하는 중 오류 발생!");
     }
-
-    in.close();
   }
 
   @RequestMapping("/todo/list")
@@ -83,19 +97,21 @@ public class TodoController {
   @RequestMapping("/todo/save")
   public Object save() throws Exception {
 
-    // 데이터를 바이너리 형식으로 저장하기 위해 !!!
-    DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("todos.data")));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("todos.json")));
 
-    Object[] arr = todoList.toArray();
-    for (Object obj : arr) {
-      Todo todo = (Todo) obj;
-      out.writeUTF(todo.getTitle());
-      out.writeBoolean(todo.isDone());
+    // JSON 형식의 문자열을 다룰 객체를 준비한다
+    ObjectMapper mapper = new ObjectMapper();
 
-    }
+    // 1) 객체를 JSON 형식의 문자열로 생성한다
+    // => ArrayList 에서 Board 배열을 꺼낸 후 JSON 문자열로 만든다
+    String jsonStr = mapper.writeValueAsString(todoList.toArray());
+    //
+
+    // 2) JSON 형식으로 바꾼 문자열을 파일로 출력한다
+    out.println(jsonStr);
 
     out.close();
-    return arr.length;
+    return todoList.size();
   }
 }
 

@@ -1,16 +1,15 @@
 package com.eomcs.mylist.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.sql.Date;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.eomcs.mylist.domain.Book;
 import com.eomcs.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController 
 public class BookController {
@@ -21,30 +20,36 @@ public class BookController {
     bookList = new ArrayList();
     System.out.println("BookController() 호출됨!");
 
-    DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream("books.data")));
+    try {
 
-    while (true) { 
-      try {
-        Book book = new Book();
-        book.setTitle(in.readUTF());
-        book.setAuthor(in.readUTF());
-        book.setPress(in.readUTF());
-        book.setPage(in.readInt());
-        book.setPrice(in.readInt());
-        String date = in.readUTF();
-        if (date.length() > 0) {
-          book.setReadDate(Date.valueOf(date));
-        }
-        book.setFeed(in.readUTF());
+      BufferedReader in = new BufferedReader(new FileReader("books.json"));
 
-        bookList.add(book); // 파일에서 읽은 한 줄의 CSV 데이터로 객체를 만든 후 목록에 등록한다.
-      } catch (Exception e) {   //try 돌려보다가 예외가 catch(발견)되었을 때 break !!
-        break;
-      }
+      // JSON 문자열을 다룰 객체 준비
+      ObjectMapper mapper = new ObjectMapper();
 
+      // 1) JSON 파일에서 문자열을 읽어온다
+      // => 읽어 온 문자열은 배열 형식이다
+      String jsonStr = in.readLine();
+
+      // 2) JSON 문자열을 가지고 자바 객체를 생성한다
+      // => 배열 형식의 JSON 문자열에서 Board의 배열 객체를 생성한다
+      Book[] books = mapper.readValue(jsonStr, Book[].class);
+
+      // 3) 배열 객체를 ArrayList 에 저장한다
+      //      for (Book book : books) {
+      //        bookList.add(book);
+      //      }
+      // => 다음과 같이 addALl()을 호출하여 배열을 목록에 추가할 수 있다
+      //      bookdList.addAll(books);
+
+      // => 다음과 같이 생성자를 통해 배열을 목록에 추가할 수 있다
+      bookList = new ArrayList(books);
+
+      in.close();
+
+    } catch (Exception e) {   //try 돌려보다가 예외가 catch(발견)되었을 때 break !!
+      System.out.println("도서록 데이터를 로딩하는 중 오류 발생!");
     }
-
-    in.close();
   }
 
   @RequestMapping("/book/list")
@@ -86,28 +91,21 @@ public class BookController {
   @RequestMapping("/book/save")
   public Object save() throws Exception {
 
-    DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("books.data")));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("books.json")));
 
-    Object[] arr = bookList.toArray();
-    for (Object obj : arr) {
-      Book book = (Book) obj;
-      out.writeUTF(book.getTitle());
-      out.writeUTF(book.getAuthor());
-      out.writeUTF(book.getPress());
-      out.writeInt(book.getPage());
-      out.writeInt(book.getPrice());
-      if (book.getReadDate() == null) {
-        out.writeUTF("");
-      } else {
-        out.writeUTF(book.getReadDate().toString());
-      }
-      out.writeUTF(book.getFeed());
+    // JSON 형식의 문자열을 다룰 객체를 준비한다
+    ObjectMapper mapper = new ObjectMapper();
 
-    }
+    // 1) 객체를 JSON 형식의 문자열로 생성한다
+    // => ArrayList 에서 Board 배열을 꺼낸 후 JSON 문자열로 만든다
+    String jsonStr = mapper.writeValueAsString(bookList.toArray());
+    //
 
+    // 2) JSON 형식으로 바꾼 문자열을 파일로 출력한다
+    out.println(jsonStr);
 
     out.close();
-    return arr.length;
+    return bookList.size();
   }
 }
 
