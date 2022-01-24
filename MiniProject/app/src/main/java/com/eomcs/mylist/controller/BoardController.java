@@ -20,7 +20,7 @@ public class BoardController {
   public BoardController() throws Exception {
     System.out.println("BoardController() 호출됨!");
 
-    try {
+    try {  
       BufferedReader in = new BufferedReader(new FileReader("boards.json"));
 
       // JSON 문자열을 다룰 객체 준비
