@@ -30,7 +30,6 @@ public class SerialBoardDao extends AbstractBoardDao {
     out.flush();
     out.close();
   }
-
 }
 
 

@@ -9,7 +9,9 @@ import java.io.FileOutputStream;
 import java.sql.Date;
 import com.eomcs.mylist.domain.Board;
 
-// @Repository
+
+// 인터페이스를 직접 구현하는 대신에 AbstractBoardDao를 상속 받는다.
+//
 public class BinaryBoardDao extends AbstractBoardDao {
 
   String filename = "boards.bin";

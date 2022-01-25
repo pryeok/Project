@@ -5,12 +5,11 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import org.springframework.stereotype.Repository;
 import com.eomcs.mylist.domain.Board;
-import com.eomcs.util.ArrayList;
 
-//@Repository
+@Repository
 public class CsvBoardDao extends AbstractBoardDao {
-  ArrayList boardList = new ArrayList(); // 변수 선언 = 변수를 만들라는 명령!
 
   public CsvBoardDao() {
     try {
